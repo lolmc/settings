@@ -1,0 +1,127 @@
+System Setup Post Install Ubuntu Server and LMDE4 Desktop
+
+ADD PROGRAMS for SERVER
+
+```
+sudo apt install -y nfs-common mc
+```
+Use this guide to install Sonarr https://sonarr.tv/#downloads-v3-linux-ubuntu 
+Use this guide to install Radarr https://varhowto.com/install-radarr-ubuntu-20-04/#Radarr_Ubuntu_20_04
+use this guide to install NZBGet https://nzbget.net/installation-on-linux
+
+
+
+
+ADD PROGRAMS for desktop
+
+```
+sudo pacman -Syu vlc inkscape gimp calibre nfs-common plank dconf-editor filezilla terminator mc vlc clementine
+
+```
+
+Add plank to the start up applications
+
+install the Divo theme
+
+MOVE FILES AND FOLDERS
+
+use filezilla to copy over the following files and folders from monster using sftp:
+
+.bashrc
+.bash_aliases
+<hostname>-desktop
+.themes folder
+.icons folder
+Anime Wallpaper
+
+SET UP NFS
+
+```
+sudo apt install -y nfs-common
+sudo mkdir -p /nfs/anime
+sudo mkdir -p /nfs/e-books
+sudo mkdir -p /nfs/femputer/movies
+sudo mkdir -p /nfs/music
+sudo mkdir -p /nfs/femputer/tv 
+sudo mkdir -p /nfs/backup
+```
+
+```
+# orac nfs new links
+192.168.7.1:/mnt/data/anime               /nfs/anime              nfs    _netdev,auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+192.168.7.1:/mnt/data/e-books             /nfs/e-books            nfs    _netdev,auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+192.168.7.1:/mnt/data/backup              /nfs/backup             nfs    _netdev,auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+192.168.7.1:/mnt/data/music               /nfs/music              nfs    _netdev,auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+
+# femputer unraid nfs
+192.168.7.7:/mnt/user/movies              /nfs/femputer/movies    nfs     _netdev,auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+192.168.7.7:/mnt/user/tv                  /nfs/femputer/tv        nfs     _netdev,auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+
+sudo mount -a
+```
+
+SETUP HOSTS
+
+'''
+sudo mv /etc/hosts /etc/hosts.old
+sudo cp /nfs/backup/<hostname>/hosts /etc/hosts
+
+'''
+
+
+SET UP CONFIG FILE BACKUP AND RESTORE
+
+SERVER BACKUP
+
+backups to include
+~/.bashrc
+~/.bash_aliases
+/etc/fstab
+/etc/hosts
+~/nzbget/nzbget.conf
+
+Retrieve the config-copy job from NFS for the cureent system e.g. smallbox, latitude, monster etc.
+
+```
+cd ~/
+cp /nfs/backup/<hostname>/config-copy.sh .
+```
+
+run dconf to load the system settings
+
+```
+dconf load / < hostname>-desktop
+```
+
+Open crontab to add a job to copy the files once an hour
+
+```
+crontab -e 
+
+@hourly ~/config-copy.sh
+```
+
+
+
+DESKTOP BACKUP using dconf
+
+Retrieve the config-copy job from NFS for the cureent system e.g. smallbox, latitude, monster etc.
+
+```
+cd ~/
+cp /nfs/backup/<hostname>/config-copy.sh .
+```
+
+run dconf to load the system settings
+
+```
+dconf load / < hostname>-desktop
+```
+
+Open crontab to add a job to copy the files once an hour
+
+```
+crontab -e 
+
+@hourly ~/config-copy.sh
+```
